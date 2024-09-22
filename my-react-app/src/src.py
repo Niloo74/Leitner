@@ -125,7 +125,22 @@ class LeitnerSystem:
             box.mark_reviewed()  # Mark the box as reviewed
     
 
-def 
+class LeitnerSystemManager:
+    def __inint__(self, category):
+        self.systems = {}
+        self.cat = category
+
+    def add_system(self, name, leitner_system):
+        """Add a new LeitnerSystem with a given name."""
+        self.systems[name] = leitner_system
+
+    def get_system(self, name):
+        """Retrieve a LeitnerSystem by its name."""
+        return self.systems.get(name)
+
+    def list_systems(self):
+        """List all available LeitnerSystems."""
+        return list(self.systems.keys())
 
 def main():
     leitner_system = LeitnerSystem()
