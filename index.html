@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitner Box System</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+    <h1>Leitner Box System</h1>
+    
+    <div>
+        <label for="question">Question: </label>
+        <input type="text" id="question" placeholder="Enter your question">
+    </div>
+    
+    <div>
+        <label for="answer">Answer: </label>
+        <input type="text" id="answer" placeholder="Enter the answer">
+    </div>
+    
+    <button id="addCardBtn">Add Card</button>
+    
+    <h2>Review Box 1</h2>
+    <button id="reviewBtn">Review</button>
+    
+    <div id="flashcardOutput"></div>
+    
+    <py-script>
+        from datetime import datetime, timedelta
+        from collections import deque
+
+        class FlashCards:
+            def __init__(self, question, answer):
+                self.question = question
+                self.answer = answer
+
+            def get_answer(self):
+                return self.answer
+            
+            def get_question(self):
+                return self.question
+            
+            def to_string(self):
+                return self.question + " : " + self.answer
+
+        class Box:
+            def __init__(self, level):
+                self.level = level
+                self.cards = deque()
+                self.last_reviewed = datetime.now()
+                self.review_interval = timedelta(days=2**level)
+
+            def add_card(self, card):
+                self.cards.append(card)
+
+            def review_card(self):
+                if self.cards:
+                    return self.cards.popleft()
+                return None
+
+            def needs_review(self):
+                return datetime.now() - self.last_reviewed >= self.review_interval
+
+            def mark_reviewed(self):
+                self.last_reviewed = datetime.now()
+
+        class LeitnerSystem:
+            def __init__(self):
+                self.boxes = [Box(i) for i in range(1, 6)]
+
+            def add_card(self, card):
+                self.boxes[0].add_card(card)
+            
+            def review_box(self, box_level):
+                box = self.boxes[box_level - 1]
+                if box.needs_review():
+                    return f"Reviewing box {box.level}:"
+                else:
+                    return "No review needed yet."
+
+        leitner_system = LeitnerSystem()
+
+        def add_flashcard():
+            question = Element("question").value
+            answer = Element("answer").value
+            card = FlashCards(question, answer)
+            leitner_system.add_card(card)
+            Element("flashcardOutput").element.innerHTML = f"Card Added: {card.to_string()}"
+
+        def review_box1():
+            review_msg = leitner_system.review_box(1)
+            Element("flashcardOutput").element.innerHTML = review_msg
+
+        # Bind functions to buttons
+        addCardBtn = Element("addCardBtn").element
+        addCardBtn.addEventListener("click", add_flashcard)
+
+        reviewBtn = Element("reviewBtn").element
+        reviewBtn.addEventListener("click", review_box1)
+
+    </py-script>
+</body>
+</html>
